@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef, useState, useTransition } from 'react';
+import React, { createContext, useContext, useRef, useState, useTransition, useEffect } from 'react';
 import { useApiFetch } from "../hooks/useApiFetch"
 import { TickData } from '../types/types';
 
@@ -52,7 +52,9 @@ export const DataHandlerProvider = ({ children }: { children: React.ReactNode })
               ...defaultTickParams,
               instruments: [name],
             }))[0];
-            return Object.values(newData)[0] as TickData;
+            const { INSTRUMENT, PRICE, PRICE_FLAG, PRICE_LAST_UPDATE_TS } = Object.values(newData)[0];
+            const tickData: TickData = { INSTRUMENT, PRICE, PRICE_FLAG, PRICE_LAST_UPDATE_TS }
+            return tickData;
           } catch (error) {
             console.error(`Error fetching data for ${name}:`, error);
             return {} as TickData;
@@ -76,6 +78,7 @@ export const DataHandlerProvider = ({ children }: { children: React.ReactNode })
               }
             }
           });
+          document.cookie = `data=${JSON.stringify(updatedDataArray)}; path=/`;
           return updatedDataArray;
         });
       });
@@ -86,7 +89,11 @@ export const DataHandlerProvider = ({ children }: { children: React.ReactNode })
     setRemoving(prev => new Set(prev).add(name));
     setTimeout(() => {
       startTransition(() => {
-        setData(prev => prev.filter(item => item.INSTRUMENT !== name));
+        setData(prev => {
+          const updatedData = prev.filter(item => item.INSTRUMENT !== name);
+          document.cookie = `data=${JSON.stringify(updatedData)}; path=/`;
+          return updatedData;
+        });
         setRemoving(prev => {
           const updated = new Set(prev);
           updated.delete(name);
@@ -95,6 +102,19 @@ export const DataHandlerProvider = ({ children }: { children: React.ReactNode })
       });
     }, 500);
   };
+
+  const loadDataFromCookies = () => {
+    const cookieData = document.cookie.split('; ').find(row => row.startsWith('data='));
+    if (cookieData && cookieData !== 'data=[]') {
+      const data = JSON.parse(cookieData.split('=')[1]);
+      setData(data);
+    } else {
+      updateAction(["DOGE-USD"]);
+    }
+  };
+  useEffect(() => {
+    loadDataFromCookies();
+  }, []);
 
   return (
     <DataHandlerContext.Provider value={{ data, updateAction, isAddedRefs, removing, handleDelete }}>

@@ -15,7 +15,6 @@ export const FavouriteDashboard = ({ headText, buttonText, listStyle, headTextSt
   const [updateFlag, setUpdateFlag] = useState<boolean>(true);
   
   useEffect(() => {
-    updateAction(["DOGE-USD"]);
     setUpdateFlag(!updateFlag); //Start updating our list
   }, []);
 
