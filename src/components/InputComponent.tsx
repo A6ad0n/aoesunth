@@ -1,25 +1,13 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-interface InputComponentProps {
-  style?:           string;
-  input?:           string;
-  type?:            string;
-  placeholderText?: string;
-  onInputChange?:   (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onKeydown?:       (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  setIsFocused?:    (val: boolean) => void;
-  allowedRef?:      React.RefObject<any>;
+interface InputComponentProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  setIsFocused: (val: boolean) => void;
+  allowedRef?:   React.RefObject<any>;
 }
 
 export const InputComponent = ({
-  style           = '',
-  input           = '',
-  type            = 'text',
-  placeholderText = '',
-  onInputChange   = () => {},
-  onKeydown       = () => {},
-  setIsFocused    = () => {},
-  allowedRef,
+  setIsFocused,
+  allowedRef, ...props
 }: InputComponentProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -51,14 +39,7 @@ export const InputComponent = ({
     <div>
       <input
         ref={inputRef}
-        className={style}
-        type={type}
-        value={input}
-        onChange={(e) => onInputChange(e)} 
-        onKeyDown={(e) => onKeydown(e)}
-        onFocus={() => setIsFocused(true)}
-        onMouseDown={() => setIsFocused(false)}
-        placeholder={placeholderText}
+        {...props}
       />
     </div>
   );

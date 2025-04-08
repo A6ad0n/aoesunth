@@ -1,6 +1,7 @@
 import { FaArrowUp, FaArrowDown, FaMinus } from 'react-icons/fa';
-import { useDataHandler } from './DataHandlerContext';
-import { TickData } from '../types/types';
+import { useDataHandler } from '../../context/DataHandlerContext/DataHandlerContext';
+import { useThemeContext } from '../../context/ThemeContext/ThemeContext';
+import { TickData } from '../../types/types';
 
 interface CryptoRowProps {
 	value: 							TickData;
@@ -11,6 +12,7 @@ interface CryptoRowProps {
 
 export const CryptoRow = ({ value, tabIndex, updateButtonStyle, deleteButtonStyle }: CryptoRowProps) => {
 	const { updateAction, isAddedRefs, removing, handleDelete } = useDataHandler();
+	const { theme } = useThemeContext();
 	const isExiting: boolean = removing.has(value.INSTRUMENT);
 	const isAdding = isAddedRefs ? isAddedRefs.current.has(value.INSTRUMENT) : false;
 
@@ -24,24 +26,34 @@ export const CryptoRow = ({ value, tabIndex, updateButtonStyle, deleteButtonStyl
   }
 
 	//*TODO loading animation
-	const updateButtonClassName = updateButtonStyle ?? 
-		`tab-index${tabIndex - 2} bg-amber-600 px-3 py-1 
-		rounded-lg hover:bg-red-400/80 transition-colors`;
-	const deleteButtonClassName = deleteButtonStyle ?? 
-		`tab-index${tabIndex - 1} bg-red-600 px-3 py-1 
-		rounded-lg hover:bg-red-600/80 transition-colors`;
+	const buttonBase = `px-3 py-1 rounded-lg transition-colors`;
+	const updateButtonClassName = updateButtonStyle ?? (
+	  `${buttonBase} tab-index${tabIndex - 2} ${
+		theme === 'dark'
+		  ? 'bg-amber-600 hover:bg-amber-500/80'
+		  : 'bg-amber-500 hover:bg-amber-400/80'
+	  }`
+	);
+	const deleteButtonClassName = deleteButtonStyle ?? (
+	  `${buttonBase} tab-index${tabIndex - 1} ${
+		theme === 'dark'
+		  ? 'bg-red-600 hover:bg-red-500/80'
+		  : 'bg-red-500 hover:bg-red-400/80'
+	  }`
+	);
+	
 	return (
 		<tr
 			className={`rounded-xl shadow-lg hover:shadow-2xl
-				transition-all duration-300 ease-in-out transform hover:scale-105
+				transition-transform duration-300 ease-in-out transform hover:scale-103
 				${isExiting ? 'animate-slide-out' : isAdding ? 'animate-slide-in' : ''}
 			`}
 			onAnimationEnd={() => {isAddedRefs?.current.delete(value.INSTRUMENT)}}
 		>
-			<td className="px-6 py-4 font-semibold text-yellow-200">{value.INSTRUMENT}</td>
-			<td className="px-6 py-4 text-green-300">{value.PRICE.toFixed(6)}</td>
+			<td className="px-6 py-4 font-semibold">{value.INSTRUMENT}</td>
+			<td className="px-6 py-4 font-semibold">{value.PRICE.toFixed(6)}</td>
 			<td className="px-6 py-4 pl-10">{icon}</td>
-			<td className="px-6 py-4 text-orange-300">{new Date(value.PRICE_LAST_UPDATE_TS * 1000).toLocaleString()}</td>
+			<td className="px-6 py-4">{new Date(value.PRICE_LAST_UPDATE_TS * 1000).toLocaleString()}</td>
 			<td className="px-6 py-4">
 				<div className="flex flex-col gap-2">
 					<button 

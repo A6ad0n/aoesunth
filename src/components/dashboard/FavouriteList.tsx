@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
-import { useDataHandler } from './DataHandlerContext';
-import { CryptoRow } from './CryptoRow';
-import { SortConfig, TickData } from '../types/types';
-import { HeaderRow } from './HeaderRow';
+import { useDataHandler } from '../../context/DataHandlerContext/DataHandlerContext';
+import { useThemeContext } from '../../context/ThemeContext/ThemeContext';
+import { SortConfig, TickData } from '../../types/types';
+import { CryptoRow } from '../table/CryptoRow';
+import { HeaderRow } from '../table/HeaderRow';
 
 interface FavouriteListProps {
   updateFlag:     boolean;
@@ -15,6 +16,7 @@ interface FavouriteListProps {
 export const FavouriteList = ({ updateFlag, tableStyle, headerStyle, tbodyStyle, controlsStyle }: FavouriteListProps) => {  
   let tabIndex: number = 2;
   const { data, updateAction } = useDataHandler();
+  const { theme }              = useThemeContext();
 
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: 'INSTRUMENT',
@@ -63,13 +65,22 @@ export const FavouriteList = ({ updateFlag, tableStyle, headerStyle, tbodyStyle,
   //*TODO Loading animation
   const titles: Array<string>              = ["Ticker",     "Price", "Change",     "Last Updated"];
   const sortKeys: Array<SortConfig['key']> = ["INSTRUMENT", "PRICE", "PRICE_FLAG", "PRICE_LAST_UPDATE_TS"]; 
-  const tableClassName = tableStyle ??
-    `mt-3 h-full w-full table-auto text-white border-separate 
-    border-spacing-y-3 bg-gradient-to-r from-purple-600 to-blue-700 rounded-xl px-5`;
-  const headerClassName = headerStyle ??
-    `text-left text-sm text-gray-300`;
-  const tbodyClassName = tbodyStyle ??
-    `text-sm`
+
+  const tableBase = `mt-3 h-full w-full table-auto border-separate border-spacing-y-3 rounded-xl px-5`;
+  const headerBase = `text-left text-sm`;
+  const tbodyBase = `text-sm`;
+  const tableClassName = tableStyle ?? (
+    `${tableBase} ${theme === 'dark'
+      ? 'text-white bg-gradient-to-r from-purple-600 to-blue-700'
+      : 'text-gray-900 bg-gradient-to-r from-yellow-100 to-pink-200'}`
+  );
+  const headerClassName = headerStyle ?? (
+    `${headerBase} ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`
+  );
+  const tbodyClassName = tbodyStyle ?? (
+    `${tbodyBase} ${theme === 'dark' ? '' : 'text-gray-800'}`
+  );
+  
   return (
     <table className={tableClassName}>
       <thead>

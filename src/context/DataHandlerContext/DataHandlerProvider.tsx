@@ -1,24 +1,10 @@
-import React, { createContext, useContext, useRef, useState, useTransition, useEffect } from 'react';
-import { useApiFetch } from "../hooks/useApiFetch"
-import { TickData } from '../types/types';
+import { ReactNode, useContext, useRef, useState, useTransition, useEffect } from 'react';
+import { DataHandlerContext } from './DataHandlerContext';
+import { useApiFetch } from "../../hooks/useApiFetch"
+import { TickData } from '../../types/types';
+import { setCookie, getCookie } from '../../utils/utils';
 
-interface DataHandlerContextType {
-  data:         Array<TickData>;
-  updateAction: (names: Array<string>) => void;
-  isAddedRefs:  React.RefObject<Set<string>> | null;
-  handleDelete: (name: string) => void;
-  removing:     Set<string>;
-}
-
-const DataHandlerContext = createContext<DataHandlerContextType>({
-  data:         [],
-  updateAction: () => {},
-  isAddedRefs:  null,
-  handleDelete: () => {},
-  removing:     new Set<string>()
-});
-
-export const DataHandlerProvider = ({ children }: { children: React.ReactNode }) => {
+export const DataHandlerProvider = ({ children }: { children: ReactNode }) => {
   //*TODO How to organize one occurence of API_KEY in all my program IT OCCURS AT HEADER ALSO
   const API_KEY = "fff2211f54bbb67548c547cb6e2b5ecc94f60b4fb31acce4ab3c3aaf11d1145d";
   const defaultTickParams = {
@@ -39,6 +25,7 @@ export const DataHandlerProvider = ({ children }: { children: React.ReactNode })
   const [data, setData]         = useState<Array<TickData>>([]);
   const [removing, setRemoving] = useState<Set<string>>(new Set<string>());
   const isAddedRefs             = useRef<Set<string>>(new Set<string>());
+  const isDataCookieAccepted    = useRef<boolean>(false);
 
   const updateAction = (names: Array<string>) => {
     console.log("FETCHING", names);
@@ -78,7 +65,8 @@ export const DataHandlerProvider = ({ children }: { children: React.ReactNode })
               }
             }
           });
-          document.cookie = `data=${JSON.stringify(updatedDataArray)}; path=/`;
+          if (isDataCookieAccepted.current)
+            setCookie("data", JSON.stringify(updatedDataArray));
           return updatedDataArray;
         });
       });
@@ -91,7 +79,8 @@ export const DataHandlerProvider = ({ children }: { children: React.ReactNode })
       startTransition(() => {
         setData(prev => {
           const updatedData = prev.filter(item => item.INSTRUMENT !== name);
-          document.cookie = `data=${JSON.stringify(updatedData)}; path=/`;
+          if (isDataCookieAccepted.current)
+            setCookie("data", JSON.stringify(updatedData));
           return updatedData;
         });
         setRemoving(prev => {
@@ -104,11 +93,14 @@ export const DataHandlerProvider = ({ children }: { children: React.ReactNode })
   };
 
   const loadDataFromCookies = () => {
-    const cookieData = document.cookie.split('; ').find(row => row.startsWith('data='));
-    if (cookieData && cookieData !== 'data=[]') {
-      const data = JSON.parse(cookieData.split('=')[1]);
-      setData(data);
-    } else {
+    isDataCookieAccepted.current = Boolean(getCookie('cookie_data_accepted'));
+    if (isDataCookieAccepted.current) {
+      const cookieData = getCookie('data');
+      if (cookieData && cookieData !== '[]') {
+        const data = JSON.parse(cookieData);
+        setData(data);
+      } 
+    }else {
       updateAction(["DOGE-USD"]);
     }
   };
@@ -122,5 +114,3 @@ export const DataHandlerProvider = ({ children }: { children: React.ReactNode })
     </DataHandlerContext.Provider>
   );
 };
-
-export const useDataHandler = () => useContext(DataHandlerContext);

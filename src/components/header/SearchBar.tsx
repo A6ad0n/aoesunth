@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react'
 import { Autocomplete } from './Autocomplete';
-import { InputComponent } from './InputComponent';
+import { InputComponent } from '../InputComponent';
 import { unstable_batchedUpdates } from 'react-dom';
-import { useDataHandler } from './DataHandlerContext';
+import { useDataHandler } from '../../context/DataHandlerContext/DataHandlerContext';
+import { useThemeContext } from '../../context/ThemeContext/ThemeContext';
 
 interface SearchBarProps {
   isPending:         boolean;
@@ -20,13 +21,21 @@ export const SearchBar = ({ isPending, placeholderText, inputStyle, searchButton
 
   const autocompleteRef  = useRef<any>(null);
   const { updateAction } = useDataHandler();
+  const { theme }        = useThemeContext();
 
-  const buttonClassName = buttonStyle ?? 
-    `absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-4 py-2 
-    rounded-lg border-none cursor-pointer transition-colors ease-in-out duration-200 hover:bg-blue-500/80`;
-  const inputClassName = inputStyle ?? 
-    `w-full h-full focus:outline-none focus:ring-0 focus:border-gray-600 border-2 border-white p-2 
-    rounded-lg hover:border-gray-600 transition-colors ease-in-out duration-200`;
+  const buttonBase = `absolute right-0 top-1/2 transform -translate-y-1/2 px-4 py-2 rounded-lg border-none cursor-pointer transition-colors ease-in-out duration-300`;
+  const inputBase = `w-full h-full focus:outline-none focus:ring-0 p-2 rounded-lg transition-colors ease-in-out duration-300`;
+  const buttonClassName = buttonStyle ?? (
+    `${buttonBase} ${theme === 'dark'
+      ? 'bg-blue-500 text-white hover:bg-blue-500/80'
+      : 'bg-blue-600 text-white hover:bg-blue-500'}`
+  );
+  const inputClassName = inputStyle ?? (
+    `${inputBase} ${theme === 'dark'
+      ? 'border-2 border-white hover:border-gray-600 focus:border-gray-600'
+      : 'border-2 border-gray-300 hover:border-gray-500 focus:border-blue-500 text-gray-900'}`
+  );
+  
 
  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,14 +87,16 @@ export const SearchBar = ({ isPending, placeholderText, inputStyle, searchButton
   return (
     <div className="w-full h-full relative">
       <InputComponent 
-        style={inputClassName}
-        input={input}
-        type='text'
-        placeholderText={placeholderText}
-        onInputChange={handleInputChange}
-        onKeydown={handleKeydown}
-        setIsFocused={setIsFocused}
+        className={inputClassName}
         allowedRef={autocompleteRef}
+        placeholder={placeholderText}
+        value={input}
+        type='text'
+        onChange={(e) => handleInputChange(e)}
+        onKeyDown={(e) => handleKeydown(e)}
+        onFocus={() => setIsFocused(true)}
+        onMouseDown={() => setIsFocused(false)}
+        setIsFocused={setIsFocused}
       />
       <button 
         className={buttonClassName}

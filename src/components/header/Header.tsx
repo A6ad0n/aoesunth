@@ -1,6 +1,7 @@
 import { useEffect, useTransition } from 'react';
-import { useApiFetch } from "../hooks/useApiFetch"
+import { useApiFetch } from "../../hooks/useApiFetch"
 import { SearchBar } from "./SearchBar"
+import { useThemeContext } from '../../context/ThemeContext/ThemeContext';
 
 interface HeaderProps {
   logoSrc: string;
@@ -8,6 +9,7 @@ interface HeaderProps {
 }
 
 export const Header = ({ logoSrc, name }: HeaderProps) => {
+  const { theme }           = useThemeContext();
   const [, startTransition] = useTransition();
   const [isInstrumentsLoading, fetchInstruments] = useApiFetch(
     'https://data-api.coindesk.com/spot/v1/markets/instruments', 
@@ -58,12 +60,19 @@ export const Header = ({ logoSrc, name }: HeaderProps) => {
     loadData();
   }, []);
 
+  const searchDivBase = `transition-colors duration-300 ease-in-out flex-1 mx-4 relative rounded-lg`;
+  const searchDivClassName = `${searchDivBase} ${
+    theme === 'dark'
+      ? 'bg-slate-800 hover:bg-slate-700'
+      : 'bg-white hover:bg-gray-100'
+  }`;
+  
+
   return (
     <div className="prevent-select flex flex-row justify-between items-center gap-3">
       <img src={logoSrc} alt="LOGO" className="w-[5vw] h-[5vw]"></img>
       <h1 className="text-3xl font-bold">{name}</h1>
-      <div className="bg-slate-800 hover:bg-slate-700 
-        transition-colors duration-300 ease-in-out flex-1 mx-4 relative rounded-lg">
+      <div className={searchDivClassName}>
         <SearchBar 
           isPending={isInstrumentsLoading} 
           placeholderText="Type here" 

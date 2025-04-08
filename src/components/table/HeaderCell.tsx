@@ -1,4 +1,4 @@
-import { SortConfig } from "../types/types";
+import { SortConfig } from "../../types/types";
 
 interface HeaderCellProps {
   style?:      string;

@@ -1,12 +1,20 @@
 @import "tailwindcss";
 
-:root {
-  background-color: rgb(17 24 39);
-  color: white;
+body {
   padding-top: 1rem;
   padding-bottom: 1rem;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
+}
+
+.dark {
+  background-color: rgb(17 24 39);
+  color: white;
+}
+
+.light {
+  background-color: rgb(126, 130, 137);
+  color: black;
 }
 
 .prevent-select {

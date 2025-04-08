@@ -1,17 +1,17 @@
-import { Header } from "../components/Header";
-import { FavouriteDashboard } from "../components/FavouriteDashboard";
-import { DataHandlerProvider } from "../components/DataHandlerContext";
+import { Header } from "../components/header/Header";
+import { FavouriteDashboard } from "../components/dashboard/FavouriteDashboard";
+import { DataHandlerProvider } from "../context/DataHandlerContext/DataHandlerProvider";
+import { CookieNotice } from "../components/cookies/CookieNotice";
 
-interface MainPageProps {
-	style: string;
-}
-
-const MainPage = ({ style }: MainPageProps) => {
+const MainPage = () => {
   return (
-    <DataHandlerProvider>
-        <Header logoSrc="src/assets/dogecoin-doge-logo.svg" name="CryptoCurrencyApp"/>
-        <FavouriteDashboard listStyle={style}/>
- 		</DataHandlerProvider>
+    <>
+      <DataHandlerProvider>
+          <Header logoSrc="src/assets/dogecoin-doge-logo.svg" name="CryptoCurrencyApp"/>
+          <FavouriteDashboard/>
+      </DataHandlerProvider>
+      <CookieNotice />
+    </>
   )
 }
 

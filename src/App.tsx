@@ -1,18 +1,18 @@
 import { useNetworkStatus } from "./hooks/useNetworkStatus";
 import OfflinePage from "./pages/OfflinePage";
 import MainPage from "./pages/MainPage";
-import { useMainTheme } from "./components/ThemeContext";
+import { ThemeProvider } from "./context/ThemeContext/ThemeProvider";
 
 export default function App() {
-  const isOnline      = useNetworkStatus();
-  const { mainStyle } = useMainTheme();
+  // const isOnline = false;
+  const isOnline = useNetworkStatus();
   return (
-    <>
+    <ThemeProvider>
       {isOnline ? (
-        <MainPage style={mainStyle}/>
+        <MainPage/>
       ) : (
-        <OfflinePage style={mainStyle}/>
+        <OfflinePage/>
       )}
-    </>
+    </ThemeProvider>
   );
 };

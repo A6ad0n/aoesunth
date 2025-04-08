@@ -1,9 +1,9 @@
-import { SortConfig } from "../types/types";
+import { SortConfig } from "../../types/types";
 import { HeaderCell } from "./HeaderCell";
 
 interface HeaderRowProps {
     headerStyle: string;
-    titles: 		 Array<string>;
+    titles:      Array<string>;
     sortKeys: 	 Array<SortConfig['key']>;
     sortConfig:  SortConfig;
     handleSort:  (key: SortConfig['key']) => void;
